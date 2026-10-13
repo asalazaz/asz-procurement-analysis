@@ -1,0 +1,439 @@
+---
+title: Procurement Analytics
+jupyter: python3
+format:
+  typst:
+    margin:
+      top: 1cm
+      bottom: 1cm
+      left: 1cm
+      right: 1cm
+---
+
+This is a case study proposed for analyzing a sample data from procurement process. The company wants to analyze if it is good option to use 'Contract' or 'Spot' buying mode.
+
+
+```{python}
+#| echo: false
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+
+plt.rcParams['figure.figsize'] = [3, 2]
+
+import warnings as wr
+
+wr.filterwarnings("ignore")
+
+from IPython.display import Image, display
+```
+
+```{python}
+#| echo: false
+# Loading the files
+file_path = Path("C:/Users/asala/Downloads/prueba-tecnica-iluma")
+p_m = pd.read_excel(file_path / "purchase_metadata_SAMPLE.xlsx")
+m_c = pd.read_csv(file_path / "material_classification_SAMPLE.csv", sep=';')
+m_p = pd.read_csv(file_path / "material_price_benchmark_SAMPLE.csv", sep=';')
+c_s = pd.read_csv(file_path / "center_storage_capacity_SAMPLE.csv", sep=';')
+```
+
+```{python}
+#| echo: false
+# Structure of purchase_metadata_SAMPLE.xlsx
+# p_m.shape
+```
+
+
+```{python}
+#| echo: false
+# Sample of purchase_metadata_SAMPLE.xlsx (first five rows and 12 columns)
+# p_m.head()
+```
+
+
+```{python}
+#| echo: false
+# Structure of material_classification_SAMPLE.csv
+# m_c.shape
+```
+
+
+```{python}
+#| echo: false
+# Sample of material_classification_SAMPLE.csv (first five rows and 9 columns)
+# m_c.head()
+```
+
+
+```{python}
+#| echo: false
+# Structure of material_price_benchmark_SAMPLE.csv
+# m_p.shape
+```
+
+
+```{python}
+#| echo: false
+# Sample of material_price_benchmark_SAMPLE.csv (first five rows and 8 columns)
+# m_p.head()
+```
+
+
+```{python}
+#| echo: false
+# Structure of center_storage_capacity_SAMPLE.csv
+# c_s.shape
+```
+
+
+```{python}
+#| echo: false
+# Sample of center_storage_capacity_SAMPLE.csv (all rows and 3 columns)
+# c_s.head()
+```
+
+### Analyzing the file `purchase_metadata_SAMPLE.xlsx`
+
+Let's see the characteristics of the columns of the data. With `df.info()` we could see if there is empty values and the data type for each column. This is so important in order to clean, transform and complete the data.
+
+```{python}
+p_m.info()
+```
+
+#### Structure of the `MaterialCode` column
+
+```{python}
+# Analyzing the structure of the 'MaterialCode' column
+p_m['MaterialCode'].value_counts()
+```
+
+Since `MaterialCode` has some inconsistencies, first it is necessary to normalize the codes for `MAT-01004` to `MAT-1004` and `MAT-01015` to `MAT-1015`, in order to have the same structure for all, and to have consistency with the list of `MaterialCode` in `material_class.csv` file.
+
+```{python}
+#| echo: false
+p_m['MaterialCode'] = p_m['MaterialCode'].str.replace(r'^MAT-0+', 'MAT-', regex=True)
+```
+
+```{python}
+# 'MaterialCode' values in 'purchase_metadate.xlsx'
+sorted(p_m['MaterialCode'].unique())
+```
+
+```{python}
+#| echo: false
+# 'MaterialCode' values in 'material_classification_SAMPLE.csv'
+# sorted(m_c['MaterialCode'].unique())
+```
+
+Now, all values of `MaterialCode` column in `purchase_metadata_SAMPLE.xlsx` file are normalized, and coincide with the values in `MaterialCode` column in `material_classification_SAMPLE.csv` file.
+
+
+```{python}
+#| echo: false
+# Converting the datatype from str to datetime
+p_m['OrderDate'] = pd.to_datetime(p_m['OrderDate'], format='%Y-%m-%d')
+```
+
+```{python}
+#| echo: false
+# Checking the datatype of column 'OrderDate'
+# p_m.info()
+```
+
+Now, it's required to filter the registers in the required period of time between January and September 2024.
+
+```{python}
+# Filtering the data by 'OrderDate', between January and September 2024
+p_m = p_m[p_m['OrderDate'].between('2024-01-01', '2024-09-30')]
+```
+
+#### Check consistency between `POSampleID` suffix with `Center` values
+
+I will assume the suffix of `POSampleID` as the correct data for `Center` values. So let's transform the column based on this assumption.
+
+```{python}
+# Assign the suffix of 'POSampleID' as value for 'Center'
+p_m['Center'] = p_m['POSampleID'].str.split('-').str[1]
+```
+
+```{python}
+#| echo: false
+# Check coincidence bewteen suffix & 'Center' value (last letter of POSampleID==Center Value)
+# (p_m['POSampleID'].str.split('-').str[1] == p_m['Center']).value_counts()
+```
+
+#### Missing Values on `TransportCostUSD`, `DaysInStorage` & `NegotiatorID`
+
+There are three columns with missing values: `TransportCostUSD`, `DaysInStorage` & `NegotiatorID`.
+
+```{python}
+#| echo: false
+# p_m.loc[p_m['TransportCostUSD'].isna() | p_m['DaysInStorage'].isna() | p_m['NegotiatorID'].isna(), ['TransportCostUSD', 'DaysInStorage', 'NegotiatorID']]
+```
+
+For `NegotiatorID` it will assumed that the information is not critical for the analysis required in this case study. So the rows with this missing values in `NegotiatorID` will stand in the data.
+
+For `TransportCostUSD` and `DaysInStorage` the rows with missing values will be dropped. It is because the total number of rows for this case is **9**, which represents only **5,5 %** of total rows. Furthemore, of this total **5 rows** corrsponds to *Contract* `BuyingMode` and **4 rows** correspond to *Spot* `BuyingMode`. This is a balanced droping, so it will not affect considerably the analysis required.
+
+```{python}
+#| echo: false
+# p_m.loc[p_m['TransportCostUSD'].isna() | p_m['DaysInStorage'].isna(), ['TransportCostUSD', 'DaysInStorage', 'BuyingMode']]
+```
+
+Based on the previous assumptions, the `purchase_metadata_SAMPLE.xlsx` dataset now has 155 rows.
+
+```{python}
+p_m.dropna(subset=['TransportCostUSD', 'DaysInStorage'], inplace=True)
+p_m.shape
+```
+
+After this, the `purchase_metadata_SAMPLE.xlsx` dataset is normalized, filtered and cleaned. It is ready to use for the required analysis.
+
+### Calculation of the per unit cost of every Purchase Order
+
+For this calculation lets define the following variables (those highlitghed in gray are given in the data set):
+
+- `PerUnitTransportCost`: It is the transportation cost per unit.
+    - `PerUnitTransportCost` = `TransportCostUSD` / `OrderQuantity`
+
+- `PerUnitStorageCost`: It is the storage cost per unit.
+    - `PerUnitStorageCost` = `DaysInStorage` * `StorageCostPerUnitPerDay` 
+
+- `POUnitCost`: It is the total cost per unit for each purchase order.
+    - `POUnitCost` = `UnitPriceUSD` + `PerUnitTransportCost` + `PerUnitStorageCost`
+
+```{python}
+#| echo: false
+p_m_w = p_m.join(m_c.set_index('MaterialCode'), on='MaterialCode', how='left')
+```
+
+```{python}
+#| echo: false
+# New column 'PerUnitTransportCost' based on 'TransportCostUSD' & 'OrderQuantity'
+p_m_w['PerUnitTransportCost'] = p_m_w['TransportCostUSD'] / p_m_w['OrderQuantity']
+```
+
+#### `PerUnitStorageCost`
+
+Given the columns `DaysInStorage` and `StorageCostPerUnitPerDay` it will be calculated a new column `PerUnitStorageCost` in order to define how much it cost the storage of each unit of the respective purchase order before it was consumed.
+
+```{python}
+#| echo: false
+# New column 'PerUnitStorageCost' based on 'DaysInStorage' & 'StorageCostPerUnitPerDay'
+p_m_w['PerUnitStorageCost'] = p_m_w['DaysInStorage'] * p_m_w['StorageCostPerUnitPerDay']
+```
+
+#### `POUnitCost`
+
+Now it will be calculated the `POUnitCost`, which is the per unit cost of each purchase order. This is relevant because it allows to compare the cost for each material based on the two different buying modes (contract vs. spot). This cost is the sum of `UnitPriceUSD` , `PerUnitTransportCost` and `PerUnitStorageCost`.
+
+```{python}
+#| echo: false
+# New column 'POUnitCost'
+p_m_w['POUnitCost'] = p_m_w['UnitPriceUSD'] + p_m_w['PerUnitTransportCost'] + p_m_w['PerUnitStorageCost']
+```
+
+#### `DaysLeft` for Identifying Expired Products
+
+It will be created a column for calculating the `DaysLeft` until expiration of the product. Those products in which the `DaysInStorage` have surpased the `ShelfLifeDays` the result will be negative, so it could be assumed the product is expired.
+
+```{python}
+#| echo: false
+# 'DaysLeft' will allow to identify if the product is expired, when the result is negative
+p_m_w['DaysLeft'] = p_m_w['ShelfLifeDays'] - p_m_w['DaysInStorage']
+```
+
+### Business & Procurement Interpretation
+
+The question proposed for this analysis is:
+- What can this data tell us about whether opportunistic buying is cost-effective, and under what conditions?
+
+For answering this question the dataset will be filtered and sorted based on the following conditions:
+- Remove those rows whitout `POUnitCost`.
+- Show only columns `MaterialCode`, `BuyingMode`, `DaysLeft`, `UnitPriceUSD`, `POUnitCost`, `POsampleID`.
+- Order the filtered dataset based on 1.`MaterialCode`, 2.`BuyingMode`, 3.`POUnitCost`.
+
+```{python}
+#| echo: false
+(
+    p_m_w[(p_m_w['POUnitCost'].notnull())]
+    [['POSampleID', 'MaterialCode', 'BuyingMode', 'DaysLeft', 'UnitPriceUSD', 'POUnitCost']]
+    .sort_values(by=['MaterialCode', 'BuyingMode', 'POUnitCost'])
+)
+```
+
+#### Cases when Opportunistic Buying is **NOT** Cost-Effective
+
+1. Purchase Orders for **MAT-1005**:
+
+    - In the **Spot** BuyingMode the **minimum** value for POUnitCost is **13.47**, while the **maximum** value for **Contract** BuyingMode is **10.38**. It is a difference of **3.09** in the POUnitCost.
+
+    - Event though the UnitPriceUSD for Spot BuyingMode is smaller than Contract BuyingMode, the fact that the product is expired generates the final POUnitCost be greater in the Spot case.
+
+    - This is a material from Raw Materials category.
+
+    - In this case the opportunistic buying is not cost-effective.
+
+```{python}
+sns.barplot(
+    data=(p_m_w[(p_m_w['POUnitCost'].notnull()) & (p_m_w['MaterialCode'] == 'MAT-1005')]
+        [['POSampleID', 'MaterialCode', 'BuyingMode', 'DaysLeft', 'UnitPriceUSD', 'POUnitCost']]
+        .sort_values(by=['MaterialCode', 'BuyingMode', 'POUnitCost'])), 
+    x='BuyingMode', 
+    y='POUnitCost', 
+    palette='Set2'
+)
+plt.title('Purchase Order Unit Cost: Spot vs Contract [MAT-1005]')
+plt.xlabel('Buying Mode')
+plt.ylabel('PO Unit Cost')
+plt.xticks()
+plt.grid(True, axis='y', linestyle='--', alpha=0.6)
+plt.gca().set_axisbelow(True)
+plt.show()
+```
+
+2. Purchase Orders for **MAT-1003**:
+    
+    - In the **Spot** BuyingMode the **minimum** value for POUnitCost is **12.35**, while the **maximum** value for **Contract** BuyingMode is **7.00**. It is a difference of **5.35** in the POUnitCost.
+    
+    - This is also a material from Raw Materials category.
+    
+    - In this case the opportunistic buying is not cost-effective.
+
+```{python}
+#| echo: false
+# sns.barplot(
+#     data=(p_m_w[(p_m_w['POUnitCost'].notnull()) & (p_m_w['MaterialCode'] == 'MAT-1003')]
+#         [['POSampleID', 'MaterialCode', 'BuyingMode', 'DaysLeft', 'UnitPriceUSD', 'POUnitCost']]
+#         .sort_values(by=['MaterialCode', 'BuyingMode', 'POUnitCost'])), 
+#     x='BuyingMode', 
+#     y='POUnitCost', 
+#     palette='Set2'
+# )
+# plt.title('Purchase Order Unit Cost: Spot vs Contract [MAT-1003]')
+# plt.xlabel('Buying Mode')
+# plt.ylabel('PO Unit Cost')
+# plt.xticks()
+# plt.grid(True, axis='y', linestyle='--', alpha=0.6)
+# plt.gca().set_axisbelow(True)
+# plt.show()
+```
+
+3. **Conclusion:** When the value ShelfLifeDays is relatively small (less than 50 days), it is mainly for Raw Materials, the opportunistic buying at the end **would not be cost-effective**.
+
+#### Cases when Opportunistic Buying is **Cost-Effective**
+
+1. Purchase Orders for **MAT-1010**:
+    
+    - In this case the maximum Spot BuyingMode POUnitPrice is smaller than the minimum Contract BuyingMode cost, it is a **difference** of at least **1.28** (at most 6.87).
+
+```{python}
+#| echo: false
+# sns.barplot(
+#     data=(p_m_w[(p_m_w['POUnitCost'].notnull()) & (p_m_w['MaterialCode'] == 'MAT-1010')]
+#         [['POSampleID', 'MaterialCode', 'BuyingMode', 'DaysLeft', 'UnitPriceUSD', 'POUnitCost']]
+#         .sort_values(by=['MaterialCode', 'BuyingMode', 'POUnitCost'])), 
+#     x='BuyingMode', 
+#     y='POUnitCost', 
+#     palette='Set2'
+# )
+# plt.title('Purchase Order Unit Cost: Spot vs Contract [MAT-1010]')
+# plt.xlabel('Buying Mode')
+# plt.ylabel('PO Unit Cost')
+# plt.xticks()
+# plt.grid(True, axis='y', linestyle='--', alpha=0.6)
+# plt.gca().set_axisbelow(True)
+# plt.show()
+```
+
+2. Purchase Orders for **MAT-1014**:
+    - In this case de **difference** between Spot and Contract is at least **3.84** (at most 6.15).
+
+```{python}
+#| echo: false
+# sns.barplot(
+#     data=(p_m_w[(p_m_w['POUnitCost'].notnull()) & (p_m_w['MaterialCode'] == 'MAT-1014')]
+#         [['POSampleID', 'MaterialCode', 'BuyingMode', 'DaysLeft', 'UnitPriceUSD', 'POUnitCost']]
+#         .sort_values(by=['MaterialCode', 'BuyingMode', 'POUnitCost'])), 
+#     x='BuyingMode', 
+#     y='POUnitCost', 
+#     palette='Set2'
+# )
+# plt.title('Purchase Order Unit Cost: Spot vs Contract [MAT-1014]')
+# plt.xlabel('Buying Mode')
+# plt.ylabel('PO Unit Cost')
+# plt.xticks()
+# plt.grid(True, axis='y', linestyle='--', alpha=0.6)
+# plt.gca().set_axisbelow(True)
+# plt.show()
+```
+
+3. **Conclusion:** For materials that are not in the Raw Materials category, it is mainly those which doesn't have short `ShelfLifeDays` (greater than 1000 days), the opportunistic buying **is cost-effective**.
+
+### Analysis of the Center Storage Capacity
+
+There are three outliers in the Purchase Order dataset. The following table shows:
+- PO10072-P, with OrderQuantity=19043, which is greater of the StorageCapacity of Center P: 18000
+- PO10139-S, with OrderQuantity=43496, which is greater of the StorageCapacity of Center P: 42000
+- PO10156-N, with OrderQuantity=60785, which is greater of the StorageCapacity of Center P: 60000
+
+
+```{python}
+#| echo: false
+# OrderQuantity in Center N
+p_m.loc[(p_m['OrderQuantity'] > (c_s.loc[c_s['Center']=='N', 'StorageCapacityUnits'].sum())) | 
+    (p_m['OrderQuantity'] > (c_s.loc[c_s['Center']=='S', 'StorageCapacityUnits'].sum())) |
+    (p_m['OrderQuantity'] > (c_s.loc[c_s['Center']=='P', 'StorageCapacityUnits'].sum())),
+    ['POSampleID', 'MaterialCode', 'BuyingMode', 'Center', 'OrderQuantity']]
+```
+
+As the Purchase Orders are in different dates, it is assumed this doesn't interfere in the previous analysis, because the capacity of Centers could be shared in order to take advantage of the Spot buying mode and the lower price.
+
+### Data Modeling and Structure
+
+In the following image it is proposed the data model for this case study.
+
+```{python}
+#| echo: false
+display(Image(filename='data-model.png'))
+```
+
+The model is a star schema type, and it is composed by:
+
+1. **Fact Tables**
+    - fact_purchase_metadata:
+        - POSampleID
+        - SupplierCode
+        - MaterialCode
+        - Center
+        - OrderDate
+        - BuyingMode
+        - OrderQuantity
+        - UnitPriceUSD
+        - TransportCostUSD
+        - DaysInStorage
+        - BatchNumber
+        - NegotiatorID
+
+    - fact_material_price:
+        - MaterialCode
+        - Center
+        - PriceType
+        - Price
+        - PriceDate
+
+2. **Dimensions**
+    - dim_material_classification:
+        - MaterialCode, MaterialName, Category, MaterialGroupName, MaterialGroupName2, MaterialType, IsUnknownGroup, ShelfLifeDays, StorageCostPerUnitPerDay
+    - dim_center_storage_cap:
+        - Center, CenterName, StorageCapacityUnits
+    - dim_supplier_data
+        - SupplierCode
+    - dim_negotiator_data
+        - NegotiatiorID
+    - dim_calendar
+        - Date, #Year, #Month, #Day, ...

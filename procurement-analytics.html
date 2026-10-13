@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Procurement Analytics</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2" crossorigin="anonymous"></script><script src="procurement-analytics_files/libs/clipboard/clipboard.min.js"></script>
+<script src="procurement-analytics_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="procurement-analytics_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="procurement-analytics_files/libs/quarto-html/popper.min.js"></script>
+<script src="procurement-analytics_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="procurement-analytics_files/libs/quarto-html/anchor.min.js"></script>
+<link href="procurement-analytics_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="procurement-analytics_files/libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="procurement-analytics_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="procurement-analytics_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="procurement-analytics_files/libs/bootstrap/bootstrap-215b371544c282197b31c8aa00ce3677.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Procurement Analytics</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This is a case study proposed for analyzing a sample data from procurement process. The company wants to analyze if it is good option to use ‘Contract’ or ‘Spot’ buying mode.</p>
+<section id="importing-the-libraries-required" class="level3">
+<h3 class="anchored" data-anchor-id="importing-the-libraries-required">1. Importing the Libraries Required</h3>
+<div id="4a2aaa09" class="cell" data-execution_count="184">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pathlib <span class="im">import</span> Path</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> seaborn <span class="im">as</span> sns</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>plt.rcParams[<span class="st">'figure.figsize'</span>] <span class="op">=</span> [<span class="dv">4</span>, <span class="dv">3</span>]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> warnings <span class="im">as</span> wr</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>wr.filterwarnings(<span class="st">"ignore"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image, display</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="getting-the-datasets" class="level3">
+<h3 class="anchored" data-anchor-id="getting-the-datasets">2. Getting the datasets</h3>
+<p>There are 4 datasets: 1. <code>purchase_metadata_SAMPLE.xlsx</code>: One row per purchase order line 2. <code>material_classification_SAMPLE.csv</code>: Per material data (category, shelf life in days and storage cost) 3. <code>material_price_benchmark_SAMPLE.csv</code>: Historical and planned reference prices per material and center 4. <code>center_storage_capacity_SAMPLE.csv</code>: Total storage capacity per center</p>
+<div id="b997eea1" class="cell" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Loading the files</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>file_path <span class="op">=</span> Path(<span class="st">"C:/Users/asala/Downloads/prueba-tecnica-iluma"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>p_m <span class="op">=</span> pd.read_excel(file_path <span class="op">/</span> <span class="st">"purchase_metadata_SAMPLE.xlsx"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>m_c <span class="op">=</span> pd.read_csv(file_path <span class="op">/</span> <span class="st">"material_classification_SAMPLE.csv"</span>, sep<span class="op">=</span><span class="st">';'</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>m_p <span class="op">=</span> pd.read_csv(file_path <span class="op">/</span> <span class="st">"material_price_benchmark_SAMPLE.csv"</span>, sep<span class="op">=</span><span class="st">';'</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>c_s <span class="op">=</span> pd.read_csv(file_path <span class="op">/</span> <span class="st">"center_storage_capacity_SAMPLE.csv"</span>, sep<span class="op">=</span><span class="st">';'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="explore-the-structure-of-all-files" class="level3">
+<h3 class="anchored" data-anchor-id="explore-the-structure-of-all-files">3. Explore the structure of all files</h3>
+<p>For this matter we will use <code>df.shape</code> to see the structure of the file (number of rows, number of columns); and <code>df.head()</code> to see first five rows and all the columns in each file.</p>
+<ol type="1">
+<li><strong>File:</strong> <code>purchase_metadata_SAMPLE.xlsx</code></li>
+</ol>
+<div id="225733f2" class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Structure of purchase_metadata_SAMPLE.xlsx</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>p_m.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>(165, 12)</code></pre>
+</div>
+</div>
+<p>The previous result means <code>purchase_metadata_SAMPLE.xlsx</code> has 165 rows and 12 columns.</p>
+<div id="c6a092cd" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample of purchase_metadata_SAMPLE.xlsx (first five rows and 12 columns)</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>p_m.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">POSampleID</th>
+<th data-quarto-table-cell-role="th">SupplierCode</th>
+<th data-quarto-table-cell-role="th">MaterialCode</th>
+<th data-quarto-table-cell-role="th">Center</th>
+<th data-quarto-table-cell-role="th">OrderDate</th>
+<th data-quarto-table-cell-role="th">BuyingMode</th>
+<th data-quarto-table-cell-role="th">OrderQuantity</th>
+<th data-quarto-table-cell-role="th">UnitPriceUSD</th>
+<th data-quarto-table-cell-role="th">TransportCostUSD</th>
+<th data-quarto-table-cell-role="th">DaysInStorage</th>
+<th data-quarto-table-cell-role="th">BatchNumber</th>
+<th data-quarto-table-cell-role="th">NegotiatorID</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>PO10001-P</td>
+<td>V-100070</td>
+<td>MAT-1006</td>
+<td>P</td>
+<td>2024-01-24</td>
+<td>Contract</td>
+<td>829</td>
+<td>26.67</td>
+<td>443.79</td>
+<td>45.0</td>
+<td>B6966</td>
+<td>A.Villalba</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>PO10002-P</td>
+<td>V-100077</td>
+<td>MAT-1007</td>
+<td>P</td>
+<td>2024-05-05</td>
+<td>Spot</td>
+<td>1400</td>
+<td>24.99</td>
+<td>1400.94</td>
+<td>116.0</td>
+<td>B8776</td>
+<td>A.Villalba</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>PO10003-P</td>
+<td>V-100049</td>
+<td>MAT-1001</td>
+<td>P</td>
+<td>2024-05-07</td>
+<td>Contract</td>
+<td>1097</td>
+<td>31.99</td>
+<td>1275.31</td>
+<td>15.0</td>
+<td>B3357</td>
+<td>L.Fonseca</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>PO10004-P</td>
+<td>V-100014</td>
+<td>MAT-1008</td>
+<td>P</td>
+<td>2024-07-20</td>
+<td>Spot</td>
+<td>382</td>
+<td>4.64</td>
+<td>138.79</td>
+<td>114.0</td>
+<td>B3543</td>
+<td>L.Fonseca</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>PO10005-S</td>
+<td>V-100112</td>
+<td>MAT-1005</td>
+<td>S</td>
+<td>2024-03-17</td>
+<td>Spot</td>
+<td>1572</td>
+<td>6.54</td>
+<td>754.74</td>
+<td>150.0</td>
+<td>B8032</td>
+<td>M.Cardenas</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li><strong>File:</strong> <code>material_classification_SAMPLE.csv</code></li>
+</ol>
+<div id="e4d75f64" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Structure of material_classification_SAMPLE.csv</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>m_c.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>(25, 9)</code></pre>
+</div>
+</div>
+<p>The previous result means <code>material_classification_SAMPLE.csv</code> has 25 rows and 9 columns.</p>
+<div id="dbd84afd" class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample of material_classification_SAMPLE.csv (first five rows and 9 columns)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>m_c.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">MaterialCode</th>
+<th data-quarto-table-cell-role="th">MaterialName</th>
+<th data-quarto-table-cell-role="th">Category</th>
+<th data-quarto-table-cell-role="th">MaterialGroupName</th>
+<th data-quarto-table-cell-role="th">MaterialGroupName2</th>
+<th data-quarto-table-cell-role="th">MaterialType</th>
+<th data-quarto-table-cell-role="th">IsUnknownGroup</th>
+<th data-quarto-table-cell-role="th">ShelfLifeDays</th>
+<th data-quarto-table-cell-role="th">StorageCostPerUnitPerDay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>MAT-1001</td>
+<td>Yellow Corn</td>
+<td>Raw Materials</td>
+<td>Grains &amp; Oilseeds</td>
+<td>GRAINS_&amp;_OILSEEDS</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>76.0</td>
+<td>0.0629</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>MAT-1002</td>
+<td>Soybean Meal</td>
+<td>Raw Materials</td>
+<td>Grains &amp; Oilseeds</td>
+<td>GRAINS_&amp;_OILSEEDS</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>85.0</td>
+<td>0.0510</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>MAT-1003</td>
+<td>Wheat Bran</td>
+<td>Raw Materials</td>
+<td>Grains &amp; Oilseeds</td>
+<td>GRAINS_&amp;_OILSEEDS</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>44.0</td>
+<td>0.0579</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>MAT-1004</td>
+<td>Vitamin Premix</td>
+<td>Raw Materials</td>
+<td>Additives &amp; Premixes</td>
+<td>ADDITIVES_&amp;_PREMIXES</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>47.0</td>
+<td>0.0396</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>MAT-1005</td>
+<td>Amino Acid Blend</td>
+<td>Raw Materials</td>
+<td>Additives &amp; Premixes</td>
+<td>ADDITIVES_&amp;_PREMIXES</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>42.0</td>
+<td>0.0614</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>File:</strong> <code>material_price_benchmark_SAMPLE.csv</code></li>
+</ol>
+<div id="75a9241f" class="cell" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Structure of material_price_benchmark_SAMPLE.csv</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>m_p.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>(60, 8)</code></pre>
+</div>
+</div>
+<p>The previous result means <code>material_price_benchmark_SAMPLE.csv</code> has 60 rows and 8 columns.</p>
+<div id="91d1ceac" class="cell" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample of material_price_benchmark_SAMPLE.csv (first five rows and 8 columns)</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>m_p.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">MaterialCode</th>
+<th data-quarto-table-cell-role="th">Center</th>
+<th data-quarto-table-cell-role="th">PreviousPriceUSD</th>
+<th data-quarto-table-cell-role="th">PreviousPriceDate</th>
+<th data-quarto-table-cell-role="th">PlannedPrice2USD</th>
+<th data-quarto-table-cell-role="th">PlannedPriceDate2</th>
+<th data-quarto-table-cell-role="th">PlannedPrice3USD</th>
+<th data-quarto-table-cell-role="th">PlannedPriceDate3</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>MAT-1001</td>
+<td>S</td>
+<td>31.68</td>
+<td>10/02/2024</td>
+<td>33.21</td>
+<td>17/03/2024</td>
+<td>34.28</td>
+<td>27/04/2024</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>MAT-1001</td>
+<td>P</td>
+<td>32.77</td>
+<td>1/02/2024</td>
+<td>32.92</td>
+<td>23/03/2024</td>
+<td>34.05</td>
+<td>9/05/2024</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>MAT-1002</td>
+<td>N</td>
+<td>19.76</td>
+<td>20/02/2024</td>
+<td>19.35</td>
+<td>26/03/2024</td>
+<td>19.41</td>
+<td>17/05/2024</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>MAT-1002</td>
+<td>S</td>
+<td>18.81</td>
+<td>22/01/2024</td>
+<td>20.27</td>
+<td>15/03/2024</td>
+<td>19.93</td>
+<td>28/04/2024</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>MAT-1002</td>
+<td>P</td>
+<td>20.05</td>
+<td>18/02/2024</td>
+<td>20.38</td>
+<td>29/03/2024</td>
+<td>21.93</td>
+<td>2/05/2024</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<ol start="4" type="1">
+<li><strong>File:</strong> <code>center_storage_capacity_SAMPLE.csv</code></li>
+</ol>
+<div id="97c06cdb" class="cell" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Structure of center_storage_capacity_SAMPLE.csv</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>c_s.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>(3, 3)</code></pre>
+</div>
+</div>
+<p>The previous result means <code>center_storage_capacity_SAMPLE.csv</code> has 3 rows and 3 columns.</p>
+<div id="fdeb9f99" class="cell" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample of center_storage_capacity_SAMPLE.csv (all rows and 3 columns)</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>c_s.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Center</th>
+<th data-quarto-table-cell-role="th">CenterName</th>
+<th data-quarto-table-cell-role="th">StorageCapacityUnits</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>N</td>
+<td>North Plant</td>
+<td>60000</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>S</td>
+<td>South Plant</td>
+<td>42000</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>P</td>
+<td>Port Bonded Warehouse</td>
+<td>18000</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</section>
+<section id="analyzing-the-file-purchase_metadata_sample.xlsx" class="level3">
+<h3 class="anchored" data-anchor-id="analyzing-the-file-purchase_metadata_sample.xlsx">4. Analyzing the file <code>purchase_metadata_SAMPLE.xlsx</code></h3>
+<p>Let’s see the characteristics of the columns of the data. With <code>df.info()</code> we could see if there is empty values and the data type for each column. This is so important in order to clean, transform and complete the data.</p>
+<div id="7db61583" class="cell" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>p_m.info()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.DataFrame'&gt;
+RangeIndex: 165 entries, 0 to 164
+Data columns (total 12 columns):
+ #   Column            Non-Null Count  Dtype  
+---  ------            --------------  -----  
+ 0   POSampleID        165 non-null    str    
+ 1   SupplierCode      165 non-null    str    
+ 2   MaterialCode      165 non-null    str    
+ 3   Center            165 non-null    str    
+ 4   OrderDate         165 non-null    str    
+ 5   BuyingMode        165 non-null    str    
+ 6   OrderQuantity     165 non-null    int64  
+ 7   UnitPriceUSD      165 non-null    float64
+ 8   TransportCostUSD  161 non-null    float64
+ 9   DaysInStorage     160 non-null    float64
+ 10  BatchNumber       165 non-null    str    
+ 11  NegotiatorID      153 non-null    str    
+dtypes: float64(3), int64(1), str(8)
+memory usage: 15.6 KB</code></pre>
+</div>
+</div>
+<section id="structure-of-the-materialcode-column" class="level4">
+<h4 class="anchored" data-anchor-id="structure-of-the-materialcode-column">4.1. Structure of the <code>MaterialCode</code> column</h4>
+<div id="11d98c48" class="cell" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Analyzing the structure of the 'MaterialCode' column</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>p_m[<span class="st">'MaterialCode'</span>].value_counts()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre><code>MaterialCode
+MAT-01015    12
+MAT-1014     10
+MAT-1001      9
+MAT-1008      9
+MAT-1005      9
+MAT-1023      9
+MAT-1021      9
+MAT-1007      8
+MAT-1010      8
+MAT-1006      7
+MAT-1018      7
+MAT-1019      6
+MAT-1016      6
+MAT-1011      6
+MAT-1017      6
+MAT-1003      6
+MAT-1002      6
+MAT-1024      6
+MAT-1012      5
+MAT-01004     4
+MAT-1009      4
+MAT-1022      4
+MAT-1013      3
+MAT-1020      3
+MAT-1025      3
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<p>Since <code>MaterialCode</code> has some inconsistencies, first it is necessary to normalize the codes for <code>MAT-01004</code> to <code>MAT-1004</code> and <code>MAT-01015</code> to <code>MAT-1015</code>, in order to have the same structure for all, and to have consistency with the list of <code>MaterialCode</code> in <code>material_class.csv</code> file.</p>
+<div id="d915f698" class="cell" data-execution_count="13">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>p_m[<span class="st">'MaterialCode'</span>] <span class="op">=</span> p_m[<span class="st">'MaterialCode'</span>].<span class="bu">str</span>.replace(<span class="vs">r'</span><span class="dv">^</span><span class="vs">MAT-0</span><span class="op">+</span><span class="vs">'</span>, <span class="st">'MAT-'</span>, regex<span class="op">=</span><span class="va">True</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="6212ec60" class="cell" data-execution_count="14">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 'MaterialCode' values in 'purchase_metadate.xlsx'</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="bu">sorted</span>(p_m[<span class="st">'MaterialCode'</span>].unique())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>['MAT-1001',
+ 'MAT-1002',
+ 'MAT-1003',
+ 'MAT-1004',
+ 'MAT-1005',
+ 'MAT-1006',
+ 'MAT-1007',
+ 'MAT-1008',
+ 'MAT-1009',
+ 'MAT-1010',
+ 'MAT-1011',
+ 'MAT-1012',
+ 'MAT-1013',
+ 'MAT-1014',
+ 'MAT-1015',
+ 'MAT-1016',
+ 'MAT-1017',
+ 'MAT-1018',
+ 'MAT-1019',
+ 'MAT-1020',
+ 'MAT-1021',
+ 'MAT-1022',
+ 'MAT-1023',
+ 'MAT-1024',
+ 'MAT-1025']</code></pre>
+</div>
+</div>
+<div id="e2c431f5" class="cell" data-execution_count="15">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 'MaterialCode' values in 'material_classification_SAMPLE.csv'</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="bu">sorted</span>(m_c[<span class="st">'MaterialCode'</span>].unique())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<pre><code>['MAT-1001',
+ 'MAT-1002',
+ 'MAT-1003',
+ 'MAT-1004',
+ 'MAT-1005',
+ 'MAT-1006',
+ 'MAT-1007',
+ 'MAT-1008',
+ 'MAT-1009',
+ 'MAT-1010',
+ 'MAT-1011',
+ 'MAT-1012',
+ 'MAT-1013',
+ 'MAT-1014',
+ 'MAT-1015',
+ 'MAT-1016',
+ 'MAT-1017',
+ 'MAT-1018',
+ 'MAT-1019',
+ 'MAT-1020',
+ 'MAT-1021',
+ 'MAT-1022',
+ 'MAT-1023',
+ 'MAT-1024',
+ 'MAT-1025']</code></pre>
+</div>
+</div>
+<p>Now, all values of <code>MaterialCode</code> column in <code>purchase_metadata_SAMPLE.xlsx</code> file are normalized, and coincide with the values in <code>MaterialCode</code> column in <code>material_classification_SAMPLE.csv</code> file.</p>
+</section>
+<section id="transform-datatype-of-orderdate-column" class="level4">
+<h4 class="anchored" data-anchor-id="transform-datatype-of-orderdate-column">4.2. Transform datatype of <code>OrderDate</code> column</h4>
+<p>It is recommended to transform the datatype of this column from <code>str</code> to <code>datetime</code>. This is helpful then, because it is required to filter registers with <code>OrderDate</code> from January 2024 to September 2024.</p>
+<div id="f7d4e4ae" class="cell" data-execution_count="16">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Converting the datatype from str to datetime</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>p_m[<span class="st">'OrderDate'</span>] <span class="op">=</span> pd.to_datetime(p_m[<span class="st">'OrderDate'</span>], <span class="bu">format</span><span class="op">=</span><span class="st">'%Y-%m-</span><span class="sc">%d</span><span class="st">'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="10355e19" class="cell" data-execution_count="17">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Checking the datatype of column 'OrderDate'</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>p_m.info()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;class 'pandas.DataFrame'&gt;
+RangeIndex: 165 entries, 0 to 164
+Data columns (total 12 columns):
+ #   Column            Non-Null Count  Dtype         
+---  ------            --------------  -----         
+ 0   POSampleID        165 non-null    str           
+ 1   SupplierCode      165 non-null    str           
+ 2   MaterialCode      165 non-null    str           
+ 3   Center            165 non-null    str           
+ 4   OrderDate         165 non-null    datetime64[us]
+ 5   BuyingMode        165 non-null    str           
+ 6   OrderQuantity     165 non-null    int64         
+ 7   UnitPriceUSD      165 non-null    float64       
+ 8   TransportCostUSD  161 non-null    float64       
+ 9   DaysInStorage     160 non-null    float64       
+ 10  BatchNumber       165 non-null    str           
+ 11  NegotiatorID      153 non-null    str           
+dtypes: datetime64[us](1), float64(3), int64(1), str(7)
+memory usage: 15.6 KB</code></pre>
+</div>
+</div>
+<p>Now, let’s filter the registers in the required period of time.</p>
+<div id="ff10ea2c" class="cell" data-execution_count="18">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filtering the data by 'OrderDate', between January and September 2024</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>p_m <span class="op">=</span> p_m[p_m[<span class="st">'OrderDate'</span>].between(<span class="st">'2024-01-01'</span>, <span class="st">'2024-09-30'</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="check-consistency-between-posampleid-suffix-with-center-values" class="level4">
+<h4 class="anchored" data-anchor-id="check-consistency-between-posampleid-suffix-with-center-values">4.3. Check consistency between <code>POSampleID</code> suffix with <code>Center</code> values</h4>
+<p>I will assume the suffix of <code>POSampleID</code> as the correct data for <code>Center</code> values. So let’s transform the column based on this assumption.</p>
+<div id="55703c74" class="cell" data-execution_count="19">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assign the suffix of 'POSampleID' as value for 'Center'</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>p_m[<span class="st">'Center'</span>] <span class="op">=</span> p_m[<span class="st">'POSampleID'</span>].<span class="bu">str</span>.split(<span class="st">'-'</span>).<span class="bu">str</span>[<span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div id="f37ea972" class="cell" data-execution_count="20">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check coincidence bewteen suffix &amp; 'Center' value (last letter of POSampleID==Center Value)</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>(p_m[<span class="st">'POSampleID'</span>].<span class="bu">str</span>.split(<span class="st">'-'</span>).<span class="bu">str</span>[<span class="dv">1</span>] <span class="op">==</span> p_m[<span class="st">'Center'</span>]).value_counts()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="20">
+<pre><code>True    164
+Name: count, dtype: int64</code></pre>
+</div>
+</div>
+<p>Based on the previous result, suffix and <code>Center</code> column value coincide.</p>
+</section>
+<section id="missing-values-on-transportcostusd-daysinstorage-negotiatorid" class="level4">
+<h4 class="anchored" data-anchor-id="missing-values-on-transportcostusd-daysinstorage-negotiatorid">4.4. Missing Values on <code>TransportCostUSD</code>, <code>DaysInStorage</code> &amp; <code>NegotiatorID</code></h4>
+<p>There are three columns with missing values: <code>TransportCostUSD</code>, <code>DaysInStorage</code> &amp; <code>NegotiatorID</code>.</p>
+<div id="10eb8109" class="cell" data-execution_count="21">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>p_m.loc[p_m[<span class="st">'TransportCostUSD'</span>].isna() <span class="op">|</span> p_m[<span class="st">'DaysInStorage'</span>].isna() <span class="op">|</span> p_m[<span class="st">'NegotiatorID'</span>].isna(), [<span class="st">'TransportCostUSD'</span>, <span class="st">'DaysInStorage'</span>, <span class="st">'NegotiatorID'</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="21">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">TransportCostUSD</th>
+<th data-quarto-table-cell-role="th">DaysInStorage</th>
+<th data-quarto-table-cell-role="th">NegotiatorID</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">14</th>
+<td>NaN</td>
+<td>37.0</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">18</th>
+<td>4236.40</td>
+<td>72.0</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">21</th>
+<td>1260.94</td>
+<td>134.0</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">30</th>
+<td>43.16</td>
+<td>NaN</td>
+<td>M.Cardenas</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">41</th>
+<td>1212.19</td>
+<td>129.0</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">54</th>
+<td>NaN</td>
+<td>175.0</td>
+<td>L.Fonseca</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">62</th>
+<td>1183.97</td>
+<td>24.0</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">65</th>
+<td>504.78</td>
+<td>NaN</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">72</th>
+<td>770.04</td>
+<td>10.0</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">73</th>
+<td>713.60</td>
+<td>NaN</td>
+<td>M.Cardenas</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">97</th>
+<td>490.81</td>
+<td>3.0</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">110</th>
+<td>319.97</td>
+<td>27.0</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">122</th>
+<td>192.27</td>
+<td>NaN</td>
+<td>M.Cardenas</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">129</th>
+<td>818.71</td>
+<td>114.0</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">131</th>
+<td>NaN</td>
+<td>3.0</td>
+<td>A.Villalba</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">143</th>
+<td>541.44</td>
+<td>NaN</td>
+<td>A.Villalba</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">153</th>
+<td>429.95</td>
+<td>24.0</td>
+<td>NaN</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">160</th>
+<td>539.22</td>
+<td>137.0</td>
+<td>NaN</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">161</th>
+<td>NaN</td>
+<td>83.0</td>
+<td>L.Fonseca</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>For <code>NegotiatorID</code> it will assumed that the information is not critical for the analysis required in this case study. So the rows with this missing values in <code>NegotiatorID</code> will stand in the data.</p>
+<p>For <code>TransportCostUSD</code> and <code>DaysInStorage</code> the rows with missing values will be dropped. It is because the total number of rows for this case is <strong>9</strong>, which represents only <strong>5,5 %</strong> of total rows. Furthemore, of this total <strong>5 rows</strong> corrsponds to <em>Contract</em> <code>BuyingMode</code> and <strong>4 rows</strong> correspond to <em>Spot</em> <code>BuyingMode</code>. This is a balanced droping, so it will not affect considerably the analysis required.</p>
+<div id="959a8e23" class="cell" data-execution_count="22">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>p_m.loc[p_m[<span class="st">'TransportCostUSD'</span>].isna() <span class="op">|</span> p_m[<span class="st">'DaysInStorage'</span>].isna(), [<span class="st">'TransportCostUSD'</span>, <span class="st">'DaysInStorage'</span>, <span class="st">'BuyingMode'</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="22">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">TransportCostUSD</th>
+<th data-quarto-table-cell-role="th">DaysInStorage</th>
+<th data-quarto-table-cell-role="th">BuyingMode</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">14</th>
+<td>NaN</td>
+<td>37.0</td>
+<td>Contract</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">30</th>
+<td>43.16</td>
+<td>NaN</td>
+<td>Contract</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">54</th>
+<td>NaN</td>
+<td>175.0</td>
+<td>Spot</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">65</th>
+<td>504.78</td>
+<td>NaN</td>
+<td>Contract</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">73</th>
+<td>713.60</td>
+<td>NaN</td>
+<td>Spot</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">122</th>
+<td>192.27</td>
+<td>NaN</td>
+<td>Spot</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">131</th>
+<td>NaN</td>
+<td>3.0</td>
+<td>Contract</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">143</th>
+<td>541.44</td>
+<td>NaN</td>
+<td>Contract</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">161</th>
+<td>NaN</td>
+<td>83.0</td>
+<td>Spot</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>Based on the previous assumptions, the <code>purchase_metadata_SAMPLE.xlsx</code> dataset now has 155 rows.</p>
+<div id="03caa3ee" class="cell" data-execution_count="24">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>p_m.dropna(subset<span class="op">=</span>[<span class="st">'TransportCostUSD'</span>, <span class="st">'DaysInStorage'</span>], inplace<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>p_m.shape</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="24">
+<pre><code>(155, 12)</code></pre>
+</div>
+</div>
+<p>After this, the <code>purchase_metadata_SAMPLE.xlsx</code> dataset is normalized, filtered and cleaned. It is ready to use for the required analysis.</p>
+</section>
+</section>
+<section id="calculation-of-the-per-unit-cost-of-every-purchase-order" class="level3">
+<h3 class="anchored" data-anchor-id="calculation-of-the-per-unit-cost-of-every-purchase-order">5. Calculation of the per unit cost of every Purchase Order</h3>
+<p>For this calculation lets define the following variables (those highlitghed in gray are given in the data set):</p>
+<ul>
+<li><code>PerUnitTransportCost</code>: It is the transportation cost per unit.
+<ul>
+<li><code>PerUnitTransportCost</code> = <code>TransportCostUSD</code> / <code>OrderQuantity</code></li>
+</ul></li>
+<li><code>PerUnitStorageCost</code>: It is the storage cost per unit.
+<ul>
+<li><code>PerUnitStorageCost</code> = <code>DaysInStorage</code> * <code>StorageCostPerUnitPerDay</code></li>
+</ul></li>
+<li><code>POUnitCost</code>: It is the total cost per unit for each purchase order.
+<ul>
+<li><code>POUnitCost</code> = <code>UnitPriceUSD</code> + <code>PerUnitTransportCost</code> + <code>PerUnitStorageCost</code></li>
+</ul></li>
+</ul>
+<div id="535d908b" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>p_m_w <span class="op">=</span> p_m.join(m_c.set_index(<span class="st">'MaterialCode'</span>), on<span class="op">=</span><span class="st">'MaterialCode'</span>, how<span class="op">=</span><span class="st">'left'</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="25">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">POSampleID</th>
+<th data-quarto-table-cell-role="th">SupplierCode</th>
+<th data-quarto-table-cell-role="th">MaterialCode</th>
+<th data-quarto-table-cell-role="th">Center</th>
+<th data-quarto-table-cell-role="th">OrderDate</th>
+<th data-quarto-table-cell-role="th">BuyingMode</th>
+<th data-quarto-table-cell-role="th">OrderQuantity</th>
+<th data-quarto-table-cell-role="th">UnitPriceUSD</th>
+<th data-quarto-table-cell-role="th">TransportCostUSD</th>
+<th data-quarto-table-cell-role="th">DaysInStorage</th>
+<th data-quarto-table-cell-role="th">BatchNumber</th>
+<th data-quarto-table-cell-role="th">NegotiatorID</th>
+<th data-quarto-table-cell-role="th">MaterialName</th>
+<th data-quarto-table-cell-role="th">Category</th>
+<th data-quarto-table-cell-role="th">MaterialGroupName</th>
+<th data-quarto-table-cell-role="th">MaterialGroupName2</th>
+<th data-quarto-table-cell-role="th">MaterialType</th>
+<th data-quarto-table-cell-role="th">IsUnknownGroup</th>
+<th data-quarto-table-cell-role="th">ShelfLifeDays</th>
+<th data-quarto-table-cell-role="th">StorageCostPerUnitPerDay</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>PO10001-P</td>
+<td>V-100070</td>
+<td>MAT-1006</td>
+<td>P</td>
+<td>2024-01-24</td>
+<td>Contract</td>
+<td>829</td>
+<td>26.67</td>
+<td>443.79</td>
+<td>45.0</td>
+<td>B6966</td>
+<td>A.Villalba</td>
+<td>Enzyme Complex</td>
+<td>Raw Materials</td>
+<td>Additives &amp; Premixes</td>
+<td>ADDITIVES_&amp;_PREMIXES</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>62.0</td>
+<td>0.0265</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>PO10002-P</td>
+<td>V-100077</td>
+<td>MAT-1007</td>
+<td>P</td>
+<td>2024-05-05</td>
+<td>Spot</td>
+<td>1400</td>
+<td>24.99</td>
+<td>1400.94</td>
+<td>116.0</td>
+<td>B8776</td>
+<td>A.Villalba</td>
+<td>Crude Palm Oil</td>
+<td>Raw Materials</td>
+<td>Fats &amp; Oils</td>
+<td>FATS_&amp;_OILS</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>90.0</td>
+<td>0.0417</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>PO10003-P</td>
+<td>V-100049</td>
+<td>MAT-1001</td>
+<td>P</td>
+<td>2024-05-07</td>
+<td>Contract</td>
+<td>1097</td>
+<td>31.99</td>
+<td>1275.31</td>
+<td>15.0</td>
+<td>B3357</td>
+<td>L.Fonseca</td>
+<td>Yellow Corn</td>
+<td>Raw Materials</td>
+<td>Grains &amp; Oilseeds</td>
+<td>GRAINS_&amp;_OILSEEDS</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>76.0</td>
+<td>0.0629</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>PO10004-P</td>
+<td>V-100014</td>
+<td>MAT-1008</td>
+<td>P</td>
+<td>2024-07-20</td>
+<td>Spot</td>
+<td>382</td>
+<td>4.64</td>
+<td>138.79</td>
+<td>114.0</td>
+<td>B3543</td>
+<td>L.Fonseca</td>
+<td>Soy Oil</td>
+<td>Raw Materials</td>
+<td>Fats &amp; Oils</td>
+<td>FATS_&amp;_OILS</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>65.0</td>
+<td>0.0286</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">4</th>
+<td>PO10005-S</td>
+<td>V-100112</td>
+<td>MAT-1005</td>
+<td>S</td>
+<td>2024-03-17</td>
+<td>Spot</td>
+<td>1572</td>
+<td>6.54</td>
+<td>754.74</td>
+<td>150.0</td>
+<td>B8032</td>
+<td>M.Cardenas</td>
+<td>Amino Acid Blend</td>
+<td>Raw Materials</td>
+<td>Additives &amp; Premixes</td>
+<td>ADDITIVES_&amp;_PREMIXES</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>42.0</td>
+<td>0.0614</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">159</th>
+<td>PO10160-N</td>
+<td>V-100035</td>
+<td>MAT-1007</td>
+<td>N</td>
+<td>2024-06-11</td>
+<td>Contract</td>
+<td>1316</td>
+<td>30.94</td>
+<td>1057.66</td>
+<td>15.0</td>
+<td>B8229</td>
+<td>J.Restrepo</td>
+<td>Crude Palm Oil</td>
+<td>Raw Materials</td>
+<td>Fats &amp; Oils</td>
+<td>FATS_&amp;_OILS</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>90.0</td>
+<td>0.0417</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">160</th>
+<td>PO10161-S</td>
+<td>V-100077</td>
+<td>MAT-1016</td>
+<td>S</td>
+<td>2024-07-09</td>
+<td>Spot</td>
+<td>1252</td>
+<td>7.47</td>
+<td>539.22</td>
+<td>137.0</td>
+<td>B1206</td>
+<td>NaN</td>
+<td>Gearbox Seal Kit</td>
+<td>MRO / Spare Parts</td>
+<td>Mechanical Spares</td>
+<td>MECHANICAL_SPARES</td>
+<td>Non-Raw Material</td>
+<td>False</td>
+<td>1472.0</td>
+<td>0.0063</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">162</th>
+<td>PO10163-N</td>
+<td>V-100091</td>
+<td>MAT-1015</td>
+<td>N</td>
+<td>2024-01-12</td>
+<td>Contract</td>
+<td>1061</td>
+<td>22.24</td>
+<td>624.16</td>
+<td>32.0</td>
+<td>B4831</td>
+<td>L.Fonseca</td>
+<td>Bearing Assembly</td>
+<td>MRO / Spare Parts</td>
+<td>Mechanical Spares</td>
+<td>MECHANICAL_SPARES</td>
+<td>Non-Raw Material</td>
+<td>False</td>
+<td>1295.0</td>
+<td>0.0085</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">163</th>
+<td>PO10164-N</td>
+<td>V-100084</td>
+<td>MAT-1006</td>
+<td>N</td>
+<td>2024-03-14</td>
+<td>Spot</td>
+<td>2214</td>
+<td>23.78</td>
+<td>3271.34</td>
+<td>57.0</td>
+<td>B3447</td>
+<td>A.Villalba</td>
+<td>Enzyme Complex</td>
+<td>Raw Materials</td>
+<td>Additives &amp; Premixes</td>
+<td>ADDITIVES_&amp;_PREMIXES</td>
+<td>Raw Material</td>
+<td>False</td>
+<td>62.0</td>
+<td>0.0265</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">164</th>
+<td>PO10165-S</td>
+<td>V-100098</td>
+<td>MAT-1010</td>
+<td>S</td>
+<td>2024-05-06</td>
+<td>Spot</td>
+<td>949</td>
+<td>26.13</td>
+<td>1158.33</td>
+<td>142.0</td>
+<td>B6211</td>
+<td>L.Fonseca</td>
+<td>PE Liner Film</td>
+<td>Packaging</td>
+<td>Primary Packaging</td>
+<td>PRIMARY_PACKAGING</td>
+<td>Non-Raw Material</td>
+<td>False</td>
+<td>1179.0</td>
+<td>0.0039</td>
+</tr>
+</tbody>
+</table>
+
+<p>155 rows × 20 columns</p>
+</div>
+</div>
+</div>
+<section id="perunittransportcost" class="level4">
+<h4 class="anchored" data-anchor-id="perunittransportcost">5.2. <code>PerUnitTransportCost</code></h4>
+<p>Given the column <code>TransportCostUSD</code> it will be calculated a new column <code>PerUnitTransportCost</code> based on the <code>OrderQuantity</code> of each purchase order.</p>
+<div id="f996daee" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># New column 'PerUnitTransportCost' based on 'TransportCostUSD' &amp; 'OrderQuantity'</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>p_m_w[<span class="st">'PerUnitTransportCost'</span>] <span class="op">=</span> p_m_w[<span class="st">'TransportCostUSD'</span>] <span class="op">/</span> p_m_w[<span class="st">'OrderQuantity'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="perunitstoragecost" class="level4">
+<h4 class="anchored" data-anchor-id="perunitstoragecost">5.3. <code>PerUnitStorageCost</code></h4>
+<p>Given the columns <code>DaysInStorage</code> and <code>StorageCostPerUnitPerDay</code> it will be calculated a new column <code>PerUnitStorageCost</code> in order to define how much it cost the storage of each unit of the respective purchase order before it was consumed.</p>
+<div id="5cb32fe1" class="cell" data-execution_count="27">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># New column 'PerUnitStorageCost' based on 'DaysInStorage' &amp; 'StorageCostPerUnitPerDay'</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>p_m_w[<span class="st">'PerUnitStorageCost'</span>] <span class="op">=</span> p_m_w[<span class="st">'DaysInStorage'</span>] <span class="op">*</span> p_m_w[<span class="st">'StorageCostPerUnitPerDay'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="pounitcost" class="level4">
+<h4 class="anchored" data-anchor-id="pounitcost">5.4. <code>POUnitCost</code></h4>
+<p>Now it will be calculated the <code>POUnitCost</code>, which is the per unit cost of each purchase order. This is relevant because it allows to compare the cost for each material based on the two different buying modes (contract vs.&nbsp;spot). This cost is the sum of <code>UnitPriceUSD</code> , <code>PerUnitTransportCost</code> and <code>PerUnitStorageCost</code>.</p>
+<div id="fcf55678" class="cell" data-execution_count="28">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># New column 'POUnitCost'</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>p_m_w[<span class="st">'POUnitCost'</span>] <span class="op">=</span> p_m_w[<span class="st">'UnitPriceUSD'</span>] <span class="op">+</span> p_m_w[<span class="st">'PerUnitTransportCost'</span>] <span class="op">+</span> p_m_w[<span class="st">'PerUnitStorageCost'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="daysleft-for-identifying-expired-products" class="level4">
+<h4 class="anchored" data-anchor-id="daysleft-for-identifying-expired-products">5.5. <code>DaysLeft</code> for Identifying Expired Products</h4>
+<p>It will be created a column for calculating the <code>DaysLeft</code> until expiration of the product. Those products in which the <code>DaysInStorage</code> have surpased the <code>ShelfLifeDays</code> the result will be negative, so it could be assumed the product is expired.</p>
+<div id="f98b2314" class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 'DaysLeft' will allow to identify if the product is expired, when the result is negative</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>p_m_w[<span class="st">'DaysLeft'</span>] <span class="op">=</span> p_m_w[<span class="st">'ShelfLifeDays'</span>] <span class="op">-</span> p_m_w[<span class="st">'DaysInStorage'</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="business-procurement-interpretation" class="level3">
+<h3 class="anchored" data-anchor-id="business-procurement-interpretation">6. Business &amp; Procurement Interpretation</h3>
+<p>The question proposed for this analysis is: - What can this data tell us about whether opportunistic buying is cost-effective, and under what conditions?</p>
+<p>For answering this question the dataset will be filtered and sorted based on the following conditions: - Remove those rows whitout <code>POUnitCost</code>. - Show only columns <code>MaterialCode</code>, <code>BuyingMode</code>, <code>DaysLeft</code>, <code>UnitPriceUSD</code>, <code>POUnitCost</code>, <code>POsampleID</code>. - Order the filtered dataset based on 1.<code>MaterialCode</code>, 2.<code>BuyingMode</code>, 3.<code>POUnitCost</code>.</p>
+<div id="4017a49f" class="cell" data-execution_count="92">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>(</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    p_m_w[(p_m_w[<span class="st">'POUnitCost'</span>].notnull())]</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    [[<span class="st">'POSampleID'</span>, <span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'DaysLeft'</span>, <span class="st">'UnitPriceUSD'</span>, <span class="st">'POUnitCost'</span>]]</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    .sort_values(by<span class="op">=</span>[<span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'POUnitCost'</span>])</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="92">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">POSampleID</th>
+<th data-quarto-table-cell-role="th">MaterialCode</th>
+<th data-quarto-table-cell-role="th">BuyingMode</th>
+<th data-quarto-table-cell-role="th">DaysLeft</th>
+<th data-quarto-table-cell-role="th">UnitPriceUSD</th>
+<th data-quarto-table-cell-role="th">POUnitCost</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">32</th>
+<td>PO10033-S</td>
+<td>MAT-1001</td>
+<td>Contract</td>
+<td>56.0</td>
+<td>31.72</td>
+<td>33.803685</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">2</th>
+<td>PO10003-P</td>
+<td>MAT-1001</td>
+<td>Contract</td>
+<td>61.0</td>
+<td>31.99</td>
+<td>34.096043</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">27</th>
+<td>PO10028-S</td>
+<td>MAT-1001</td>
+<td>Contract</td>
+<td>53.0</td>
+<td>32.11</td>
+<td>34.471964</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">7</th>
+<td>PO10008-P</td>
+<td>MAT-1001</td>
+<td>Contract</td>
+<td>54.0</td>
+<td>33.20</td>
+<td>35.294346</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">96</th>
+<td>PO10097-S</td>
+<td>MAT-1001</td>
+<td>Contract</td>
+<td>39.0</td>
+<td>33.13</td>
+<td>36.632100</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">...</th>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">102</th>
+<td>PO10103-N</td>
+<td>MAT-1018</td>
+<td>Contract</td>
+<td>2349.0</td>
+<td>33.01</td>
+<td>34.050619</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">48</th>
+<td>PO10049-S</td>
+<td>MAT-1018</td>
+<td>Contract</td>
+<td>2317.0</td>
+<td>32.44</td>
+<td>34.062792</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">126</th>
+<td>PO10127-P</td>
+<td>MAT-1018</td>
+<td>Contract</td>
+<td>2347.0</td>
+<td>33.33</td>
+<td>34.629276</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">147</th>
+<td>PO10148-P</td>
+<td>MAT-1018</td>
+<td>Contract</td>
+<td>2350.0</td>
+<td>33.61</td>
+<td>35.019924</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">24</th>
+<td>PO10025-N</td>
+<td>MAT-1018</td>
+<td>Spot</td>
+<td>2245.0</td>
+<td>25.91</td>
+<td>28.000225</td>
+</tr>
+</tbody>
+</table>
+
+<p>116 rows × 6 columns</p>
+</div>
+</div>
+</div>
+<section id="cases-when-opportunistic-buying-is-not-cost-effective" class="level4">
+<h4 class="anchored" data-anchor-id="cases-when-opportunistic-buying-is-not-cost-effective">6.1. Cases when Opportunistic Buying is <strong>NOT</strong> Cost-Effective</h4>
+<ol type="1">
+<li>Purchase Orders for <strong>MAT-1005</strong>:
+<ul>
+<li>In the <strong>Spot</strong> BuyingMode the <strong>minimum</strong> value for POUnitCost is <strong>13.47</strong>, while the <strong>maximum</strong> value for <strong>Contract</strong> BuyingMode is <strong>10.38</strong>. It is a difference of <strong>3.09</strong> in the POUnitCost.</li>
+<li>Event though the UnitPriceUSD for Spot BuyingMode is smaller than Contract BuyingMode, the fact that the product is expired generates the final POUnitCost be greater in the Spot case.</li>
+<li>This is a material from Raw Materials category.</li>
+<li>In this case the opportunistic buying is not cost-effective.</li>
+</ul></li>
+</ol>
+<div id="e437435c" class="cell" data-execution_count="124">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>sns.barplot(</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>(p_m_w[(p_m_w[<span class="st">'POUnitCost'</span>].notnull()) <span class="op">&amp;</span> (p_m_w[<span class="st">'MaterialCode'</span>] <span class="op">==</span> <span class="st">'MAT-1005'</span>)]</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>        [[<span class="st">'POSampleID'</span>, <span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'DaysLeft'</span>, <span class="st">'UnitPriceUSD'</span>, <span class="st">'POUnitCost'</span>]]</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>        .sort_values(by<span class="op">=</span>[<span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'POUnitCost'</span>])), </span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'BuyingMode'</span>, </span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'POUnitCost'</span>, </span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>    palette<span class="op">=</span><span class="st">'Set2'</span></span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Purchase Order Unit Cost: Spot vs Contract [MAT-1005]'</span>)</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Buying Mode'</span>)</span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'PO Unit Cost'</span>)</span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a>plt.xticks()</span>
+<span id="cb41-13"><a href="#cb41-13" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, axis<span class="op">=</span><span class="st">'y'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb41-14"><a href="#cb41-14" aria-hidden="true" tabindex="-1"></a>plt.gca().set_axisbelow(<span class="va">True</span>)</span>
+<span id="cb41-15"><a href="#cb41-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="procurement-analytics_files/figure-html/cell-31-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li>Purchase Orders for <strong>MAT-1003</strong>:
+<ul>
+<li>In the <strong>Spot</strong> BuyingMode the <strong>minimum</strong> value for POUnitCost is <strong>12.35</strong>, while the <strong>maximum</strong> value for <strong>Contract</strong> BuyingMode is <strong>7.00</strong>. It is a difference of <strong>5.35</strong> in the POUnitCost.</li>
+<li>This is also a material from Raw Materials category.</li>
+<li>In this case the opportunistic buying is not cost-effective.</li>
+</ul></li>
+</ol>
+<div id="0c49bfc1" class="cell" data-execution_count="128">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>sns.barplot(</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>(p_m_w[(p_m_w[<span class="st">'POUnitCost'</span>].notnull()) <span class="op">&amp;</span> (p_m_w[<span class="st">'MaterialCode'</span>] <span class="op">==</span> <span class="st">'MAT-1003'</span>)]</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>        [[<span class="st">'POSampleID'</span>, <span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'DaysLeft'</span>, <span class="st">'UnitPriceUSD'</span>, <span class="st">'POUnitCost'</span>]]</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>        .sort_values(by<span class="op">=</span>[<span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'POUnitCost'</span>])), </span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'BuyingMode'</span>, </span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'POUnitCost'</span>, </span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    palette<span class="op">=</span><span class="st">'Set2'</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Purchase Order Unit Cost: Spot vs Contract [MAT-1003]'</span>)</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Buying Mode'</span>)</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'PO Unit Cost'</span>)</span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>plt.xticks()</span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, axis<span class="op">=</span><span class="st">'y'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb42-14"><a href="#cb42-14" aria-hidden="true" tabindex="-1"></a>plt.gca().set_axisbelow(<span class="va">True</span>)</span>
+<span id="cb42-15"><a href="#cb42-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="procurement-analytics_files/figure-html/cell-32-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>Conclusion:</strong> When the value ShelfLifeDays is relatively small (less than 50 days), it is mainly for Raw Materials, the opportunistic buying at the end <strong>would not be cost-effective</strong>.</li>
+</ol>
+</section>
+<section id="cases-when-opportunistic-buying-is-cost-effective" class="level4">
+<h4 class="anchored" data-anchor-id="cases-when-opportunistic-buying-is-cost-effective">6.2. Cases when Opportunistic Buying is <strong>Cost-Effective</strong></h4>
+<ol type="1">
+<li>Purchase Orders for <strong>MAT-1010</strong>:
+<ul>
+<li>In this case the maximum Spot BuyingMode POUnitPrice is smaller than the minimum Contract BuyingMode cost, it is a <strong>difference</strong> of at least <strong>1.28</strong> (at most 6.87).</li>
+</ul></li>
+</ol>
+<div id="2cb415d2" class="cell" data-execution_count="153">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>sns.barplot(</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>(p_m_w[(p_m_w[<span class="st">'POUnitCost'</span>].notnull()) <span class="op">&amp;</span> (p_m_w[<span class="st">'MaterialCode'</span>] <span class="op">==</span> <span class="st">'MAT-1010'</span>)]</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>        [[<span class="st">'POSampleID'</span>, <span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'DaysLeft'</span>, <span class="st">'UnitPriceUSD'</span>, <span class="st">'POUnitCost'</span>]]</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>        .sort_values(by<span class="op">=</span>[<span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'POUnitCost'</span>])), </span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'BuyingMode'</span>, </span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'POUnitCost'</span>, </span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    palette<span class="op">=</span><span class="st">'Set2'</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Purchase Order Unit Cost: Spot vs Contract [MAT-1010]'</span>)</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Buying Mode'</span>)</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'PO Unit Cost'</span>)</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>plt.xticks()</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, axis<span class="op">=</span><span class="st">'y'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>plt.gca().set_axisbelow(<span class="va">True</span>)</span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="procurement-analytics_files/figure-html/cell-33-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li>Purchase Orders for <strong>MAT-1014</strong>:
+<ul>
+<li>In this case de <strong>difference</strong> between Spot and Contract is at least <strong>3.84</strong> (at most 6.15).</li>
+</ul></li>
+</ol>
+<div id="58091b01" class="cell" data-execution_count="183">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>sns.barplot(</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    data<span class="op">=</span>(p_m_w[(p_m_w[<span class="st">'POUnitCost'</span>].notnull()) <span class="op">&amp;</span> (p_m_w[<span class="st">'MaterialCode'</span>] <span class="op">==</span> <span class="st">'MAT-1014'</span>)]</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>        [[<span class="st">'POSampleID'</span>, <span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'DaysLeft'</span>, <span class="st">'UnitPriceUSD'</span>, <span class="st">'POUnitCost'</span>]]</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>        .sort_values(by<span class="op">=</span>[<span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'POUnitCost'</span>])), </span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    x<span class="op">=</span><span class="st">'BuyingMode'</span>, </span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>    y<span class="op">=</span><span class="st">'POUnitCost'</span>, </span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    palette<span class="op">=</span><span class="st">'Set2'</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">'Purchase Order Unit Cost: Spot vs Contract [MAT-1014]'</span>)</span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">'Buying Mode'</span>)</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">'PO Unit Cost'</span>)</span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>plt.xticks()</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>plt.grid(<span class="va">True</span>, axis<span class="op">=</span><span class="st">'y'</span>, linestyle<span class="op">=</span><span class="st">'--'</span>, alpha<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>plt.gca().set_axisbelow(<span class="va">True</span>)</span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="procurement-analytics_files/figure-html/cell-34-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>Conclusion:</strong> For materials that are not in the Raw Materials category, it is mainly those which doesn’t have short <code>ShelfLifeDays</code> (greater than 1000 days), the opportunistic buying <strong>is cost-effective</strong>.</li>
+</ol>
+</section>
+</section>
+<section id="analysis-of-the-center-storage-capacity" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-of-the-center-storage-capacity">7. Analysis of the Center Storage Capacity</h3>
+<p>There are three outliers in the Purchase Order dataset. The following table shows: - PO10072-P, with OrderQuantity=19043, which is greater of the StorageCapacity of Center P: 18000 - PO10139-S, with OrderQuantity=43496, which is greater of the StorageCapacity of Center P: 42000 - PO10156-N, with OrderQuantity=60785, which is greater of the StorageCapacity of Center P: 60000</p>
+<div id="5762008e" class="cell" data-execution_count="181">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># OrderQuantity in Center N</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>p_m.loc[(p_m[<span class="st">'OrderQuantity'</span>] <span class="op">&gt;</span> (c_s.loc[c_s[<span class="st">'Center'</span>]<span class="op">==</span><span class="st">'N'</span>, <span class="st">'StorageCapacityUnits'</span>].<span class="bu">sum</span>())) <span class="op">|</span> </span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>    (p_m[<span class="st">'OrderQuantity'</span>] <span class="op">&gt;</span> (c_s.loc[c_s[<span class="st">'Center'</span>]<span class="op">==</span><span class="st">'S'</span>, <span class="st">'StorageCapacityUnits'</span>].<span class="bu">sum</span>())) <span class="op">|</span></span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>    (p_m[<span class="st">'OrderQuantity'</span>] <span class="op">&gt;</span> (c_s.loc[c_s[<span class="st">'Center'</span>]<span class="op">==</span><span class="st">'P'</span>, <span class="st">'StorageCapacityUnits'</span>].<span class="bu">sum</span>())),</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    [<span class="st">'POSampleID'</span>, <span class="st">'MaterialCode'</span>, <span class="st">'BuyingMode'</span>, <span class="st">'Center'</span>, <span class="st">'OrderQuantity'</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display" data-execution_count="181">
+<div>
+
+
+<table class="dataframe caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">POSampleID</th>
+<th data-quarto-table-cell-role="th">MaterialCode</th>
+<th data-quarto-table-cell-role="th">BuyingMode</th>
+<th data-quarto-table-cell-role="th">Center</th>
+<th data-quarto-table-cell-role="th">OrderQuantity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">71</th>
+<td>PO10072-P</td>
+<td>MAT-1013</td>
+<td>Spot</td>
+<td>P</td>
+<td>19043</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">138</th>
+<td>PO10139-S</td>
+<td>MAT-1005</td>
+<td>Spot</td>
+<td>S</td>
+<td>43496</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">155</th>
+<td>PO10156-N</td>
+<td>MAT-1007</td>
+<td>Spot</td>
+<td>N</td>
+<td>60785</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+<p>As the Purchase Orders are in different dates, it is assumed this doesn’t interfere in the previous analysis, because the capacity of Centers could be shared in order to take advantage of the Spot buying mode and the lower price.</p>
+</section>
+<section id="data-modeling-and-structure" class="level3">
+<h3 class="anchored" data-anchor-id="data-modeling-and-structure">8. Data Modeling and Structure</h3>
+<p>In the following image it is proposed the data model for this case study.</p>
+<div id="eca8d2c4" class="cell" data-execution_count="185">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>display(Image(filename<span class="op">=</span><span class="st">'data-model.png'</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="procurement-analytics_files/figure-html/cell-36-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The model is a star schema type, and it is composed by:</p>
+<ol type="1">
+<li><strong>Fact Tables</strong>
+<ul>
+<li>fact_purchase_metadata:
+<ul>
+<li>POSampleID</li>
+<li>SupplierCode</li>
+<li>MaterialCode</li>
+<li>Center</li>
+<li>OrderDate</li>
+<li>BuyingMode</li>
+<li>OrderQuantity</li>
+<li>UnitPriceUSD</li>
+<li>TransportCostUSD</li>
+<li>DaysInStorage</li>
+<li>BatchNumber</li>
+<li>NegotiatorID</li>
+</ul></li>
+<li>fact_material_price:
+<ul>
+<li>MaterialCode</li>
+<li>Center</li>
+<li>PriceType</li>
+<li>Price</li>
+<li>PriceDate</li>
+</ul></li>
+</ul></li>
+<li><strong>Dimensions</strong>
+<ul>
+<li>dim_material_classification:
+<ul>
+<li>MaterialCode, MaterialName, Category, MaterialGroupName, MaterialGroupName2, MaterialType, IsUnknownGroup, ShelfLifeDays, StorageCostPerUnitPerDay</li>
+</ul></li>
+<li>dim_center_storage_cap:
+<ul>
+<li>Center, CenterName, StorageCapacityUnits</li>
+</ul></li>
+<li>dim_supplier_data
+<ul>
+<li>SupplierCode</li>
+</ul></li>
+<li>dim_negotiator_data
+<ul>
+<li>NegotiatiorID</li>
+</ul></li>
+<li>dim_calendar
+<ul>
+<li>Date, #Year, #Month, #Day, …</li>
+</ul></li>
+</ul></li>
+</ol>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
